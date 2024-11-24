@@ -153,7 +153,7 @@ public class EgovConfigAppCommon {
 	public EgovPasswordEncoder egovPasswordEncoder() {
 		EgovPasswordEncoder egovPasswordEncoder = new EgovPasswordEncoder();
 		egovPasswordEncoder.setAlgorithm("SHA-256");
-		egovPasswordEncoder.setHashedPassword("gdyYs/IZqY86VcWhT8emCYfqY1ahw2vtLG+/FzNqtrQ=");
+		egovPasswordEncoder.setHashedPassword("M+FigXkTDkxE1UjfcnqxR2gU+M54CqYAq3UxKvCsy0k=");
 		return egovPasswordEncoder;
 	}
 	

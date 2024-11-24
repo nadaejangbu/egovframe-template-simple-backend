@@ -35,7 +35,8 @@
                  , PASSWORD AS password
                  , IHIDNUM AS ihidNum
                  , EMAIL_ADRES AS email
-                 , 'USR' AS userSe
+                 , IF(EMPLYR_ID='admin','ADM','USR') AS userSe
+                 /*, 'USR' AS userSe*/
                  , ORGNZT_ID AS orgnztId
                  , ESNTL_ID AS uniqId
               FROM LETTNEMPLYRINFO
