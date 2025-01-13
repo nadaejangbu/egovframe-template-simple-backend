@@ -69,6 +69,17 @@ public interface EgovBBSManageService {
 	  throws Exception;
 
 	/**
+	 * 조건에(제품소개) 맞는 게시물 목록을 조회 한다.
+	 * @return
+	 * 
+	 * @param boardVO
+	 * @param attrbFlag
+	 * @exception Exception Exception
+	 */
+	public Map<String, Object> selectBoardServiceArticles(BoardVO boardVO, String attrbFlag)
+	  throws Exception;
+	
+	/**
 	 * 조건에 맞는 게시물 목록을 조회 한다.
 	 * @return
 	 * 

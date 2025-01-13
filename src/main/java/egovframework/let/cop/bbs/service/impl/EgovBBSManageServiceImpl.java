@@ -1,6 +1,7 @@
 package egovframework.let.cop.bbs.service.impl;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import egovframework.com.cmm.service.EgovFileMngService;
 import egovframework.com.cmm.service.FileVO;
+import egovframework.com.cmm.web.EgovFileDownloadController;
 import egovframework.let.cop.bbs.service.Board;
 import egovframework.let.cop.bbs.service.BoardVO;
 import egovframework.let.cop.bbs.service.EgovBBSManageService;
@@ -113,6 +115,48 @@ public class EgovBBSManageServiceImpl extends EgovAbstractServiceImpl implements
 		return bbsMngDAO.selectBoardArticle(boardVO);
 	}
 
+	/**
+	 * 조건에(제품소개) 맞는 게시물 목록을 조회 한다.
+	 *
+	 * @see egovframework.let.cop.bbs.brd.service.EgovBBSManageService#selectBoardArticles(egovframework.let.cop.bbs.brd.service.BoardVO)
+	 */
+	@Override
+	public Map<String, Object> selectBoardServiceArticles(BoardVO boardVO, String attrbFlag) throws Exception {
+		List<BoardVO> list = bbsMngDAO.selectBoardServiceArticleList(boardVO);
+		List<BoardVO> result = new ArrayList<BoardVO>();
+
+		if ("BBSA01".equals(attrbFlag)) {
+			// 유효게시판 임
+			String today = EgovDateUtil.getToday();
+
+			BoardVO vo;
+			Iterator<BoardVO> iter = list.iterator();
+			while (iter.hasNext()) {
+				vo = iter.next();
+
+				if (!"".equals(vo.getNtceBgnde()) || !"".equals(vo.getNtceEndde())) {
+					if (EgovDateUtil.getDaysDiff(today, vo.getNtceBgnde()) > 0
+						|| EgovDateUtil.getDaysDiff(today, vo.getNtceEndde()) < 0) {
+						// 시작일이 오늘날짜보다 크거나, 종료일이 오늘 날짜보다 작은 경우
+						vo.setIsExpired("Y");
+					}
+				}
+				result.add(vo);
+			}
+		} else {
+			result = list;
+		}
+
+		int cnt = bbsMngDAO.selectBoardArticleListCnt(boardVO);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		map.put("resultList", result);
+		map.put("resultCnt", Integer.toString(cnt));
+
+		return map;
+	}
+	
 	/**
 	 * 조건에 맞는 게시물 목록을 조회 한다.
 	 *

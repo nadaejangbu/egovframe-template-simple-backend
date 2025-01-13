@@ -1,5 +1,6 @@
 package egovframework.let.cop.bbs.web;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -160,6 +161,94 @@ public class EgovBBSManageApiController {
 	}
 
 	/**
+	 * 게시물에(제품소개) 대한 목록을 조회한다.
+	 *
+	 * @param boardVO
+	 * @return resultVO
+	 * @throws Exception
+	 */
+	@Operation(
+			summary = "게시물 목록 조회",
+			description = "게시물에 대한 목록을 조회",
+			tags = {"EgovBBSManageApiController"}
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "조회 성공"),
+			@ApiResponse(responseCode = "403", description = "인가된 사용자가 아님")
+	})
+	@GetMapping(value = "/boardService")
+	public ResultVO selectBoardServiceArticles(
+			@Parameter(
+					in = ParameterIn.QUERY,
+					schema = @Schema(type = "object",
+							additionalProperties = Schema.AdditionalPropertiesValue.TRUE, 
+							ref = "#/components/schemas/searchBbsMap"),
+					style = ParameterStyle.FORM,
+					explode = Explode.TRUE
+			) @RequestParam Map<String, Object> commandMap, 
+			@Parameter(hidden = true) @AuthenticationPrincipal LoginVO user)
+		throws Exception {
+		ResultVO resultVO = new ResultVO();
+		BoardVO boardVO = new BoardVO();
+		
+		boardVO.setBbsId((String)commandMap.get("bbsId"));
+		boardVO.setSearchCnd((String)commandMap.get("searchCnd"));
+		boardVO.setSearchWrd((String)commandMap.get("searchWrd"));
+
+		BoardMasterVO vo = new BoardMasterVO();
+		vo.setBbsId(boardVO.getBbsId());
+		vo.setUniqId(user.getUniqId());
+
+		BoardMasterVO master = bbsAttrbService.selectBBSMasterInf(vo);
+
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(boardVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(propertyService.getInt("Globals.pageUnit"));
+		paginationInfo.setPageSize(propertyService.getInt("Globals.pageSize"));
+
+		boardVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		boardVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		boardVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		Map<String, Object> resultMap = bbsMngService.selectBoardServiceArticles(boardVO, vo.getBbsAttrbCode());
+		
+		// 첨부파일 암호화
+		List<BoardVO> resultList = new ArrayList<BoardVO>();
+		resultList = (List<BoardVO>)resultMap.get("resultList");
+		for (BoardVO bo : resultList) {
+			if (bo != null && bo.getAtchFileId() != null && !bo.getAtchFileId().isEmpty()) {
+				
+				FileVO fileVO = new FileVO();
+				fileVO.setAtchFileId(bo.getAtchFileId());
+				List<FileVO> resultFiles = fileService.selectFileInfs(fileVO);
+				
+				// FileId를 유추하지 못하도록 암호화하여 표시한다. (2025.01.10 추가) - 파일아이디가 유추 불가능하도록 조치
+				for (FileVO file : resultFiles) {
+					String toEncrypt = file.atchFileId;
+					//(SERVICE)첨부파일 img URL
+					bo.setAtchFileImgUrl("image?atchFileId="+Base64.getEncoder().encodeToString(cryptoService.encrypt(toEncrypt.getBytes(),EgovFileDownloadController.ALGORITM_KEY))+"&fileSn="+file.fileCn);
+					//(SERVICE)첨부파일 down URL
+					bo.setAtchFileDownUrl("file?atchFileId="+Base64.getEncoder().encodeToString(cryptoService.encrypt(toEncrypt.getBytes(),EgovFileDownloadController.ALGORITM_KEY))+"&fileSn="+file.fileCn);
+				}
+			}
+		}
+		
+		int totCnt = Integer.parseInt((String)resultMap.get("resultCnt"));
+		paginationInfo.setTotalRecordCount(totCnt);
+
+		resultMap.put("boardVO", boardVO);
+		resultMap.put("brdMstrVO", master);
+		resultMap.put("paginationInfo", paginationInfo);
+		resultMap.put("user", user);
+
+		resultVO.setResultCode(ResponseCode.SUCCESS.getCode());
+		resultVO.setResultMessage(ResponseCode.SUCCESS.getMessage());
+		resultVO.setResult(resultMap);
+
+		return resultVO;
+	}
+	
+	/**
 	 * 게시물에 대한 목록을 조회한다.
 	 *
 	 * @param boardVO
@@ -193,6 +282,7 @@ public class EgovBBSManageApiController {
 		boardVO.setBbsId((String)commandMap.get("bbsId"));
 		boardVO.setSearchCnd((String)commandMap.get("searchCnd"));
 		boardVO.setSearchWrd((String)commandMap.get("searchWrd"));
+		boardVO.setPageIndex(Integer.parseInt((String) commandMap.get("pageIndex")));
 
 		BoardMasterVO vo = new BoardMasterVO();
 		vo.setBbsId(boardVO.getBbsId());

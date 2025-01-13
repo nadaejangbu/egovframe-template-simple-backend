@@ -119,6 +119,7 @@ public class EgovBBSAttributeManageApiController {
 		
 		boardMasterVO.setSearchCnd((String)commandMap.get("searchCnd"));
 		boardMasterVO.setSearchWrd((String)commandMap.get("searchWrd"));
+		boardMasterVO.setPageIndex(Integer.parseInt((String) commandMap.get("pageIndex")));
 		
 		boardMasterVO.setPageUnit(propertyService.getInt("Globals.pageUnit"));
 		boardMasterVO.setPageSize(propertyService.getInt("Globals.pageSize"));

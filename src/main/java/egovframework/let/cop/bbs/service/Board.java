@@ -103,6 +103,12 @@ public class Board implements Serializable {
 	
 	@Schema(description = "게시 시작일")
 	private String ntceBgndeView = "";
+	
+	@Schema(description = "(SERVICE)첨부파일 img URL")
+	private String atchFileImgUrl = "";
+	
+	@Schema(description = "(SERVICE)첨부파일 down URL")
+	private String atchFileDownUrl = "";
 
 	/**
 	 * toString 메소드를 대치한다.

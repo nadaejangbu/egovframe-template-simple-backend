@@ -81,6 +81,18 @@ public class BBSManageDAO extends EgovAbstractMapper {
     }
 
     /**
+     * 조건에(제품소개) 맞는 게시물 목록을 조회 한다.
+     *
+     * @param boardVO
+     * @return
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public List<BoardVO> selectBoardServiceArticleList(BoardVO boardVO) throws Exception {
+	return (List<BoardVO>) list("BBSManageDAO.selectBoardServiceArticleList", boardVO);
+    }
+    
+    /**
      * 조건에 맞는 게시물 목록을 조회 한다.
      *
      * @param boardVO
