@@ -118,12 +118,10 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- war 배포 시 해당 주석 제거
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
 		</dependency>
-		-->
 		<!-- spring boot dependency end -->
 		
 		<!-- swagger -->
